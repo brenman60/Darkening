@@ -14,6 +14,10 @@ public class BeastBreathing : MonoBehaviour
     void Update()
     {
         float newVolume = Door.Instance.Open_ ? initialVolume : 0f;
+
+        if (Time.timeScale != 1f)
+            breathingAudio.volume = 0f;
+
         breathingAudio.volume = Mathf.Lerp(breathingAudio.volume, newVolume, Time.deltaTime * 10f);
     }
 }

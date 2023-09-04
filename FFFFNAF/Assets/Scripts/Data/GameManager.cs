@@ -1,10 +1,13 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    public static bool isNight = true;
 
     public static Night Night;
 
@@ -38,9 +41,15 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        dialogueCG = dialogueText.GetComponent<CanvasGroup>();
-        dialogueAudio = dialogueText.GetComponent<AudioSource>();
+        if (SceneManager.GetActiveScene().name != "Night")
+            isNight = false;
 
+        if (isNight)
+            StartNight();
+    }
+
+    void StartNight()
+    {
         if (Night == null)
             Night = nights.GetNight(1);
 
@@ -61,14 +70,17 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        gameTime += Time.deltaTime;
-        if (gameTime >= Night.nightLength && !gameWon)
+        if (isNight)
         {
-            gameWon = true;
-            EndingScreen.Instance.WinNight();
-        }
+            gameTime += Time.deltaTime;
+            if (gameTime >= Night.nightLength && !gameWon)
+            {
+                gameWon = true;
+                EndingScreen.Instance.WinNight();
+            }
 
-        HeatCheck();
+            HeatCheck();
+        }
     }
 
     private float heatTextFlashDebounce;

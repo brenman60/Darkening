@@ -42,14 +42,14 @@ public class MainMenuUI : MonoBehaviour
         GameManager.Night = nights.GetNight(1);
         PlayerPrefs.SetInt("night", 1);
 
-        TransitionUI.Instance.OpenScene("Game");
+        TransitionUI.Instance.OpenScene("Night");
     }
     
     public void Continue()
     {
         GameManager.Night = nights.GetNight(PlayerPrefs.GetInt("night"));
 
-        TransitionUI.Instance.OpenScene("Game");
+        TransitionUI.Instance.OpenScene("Night");
     }
 
     public void Credits()

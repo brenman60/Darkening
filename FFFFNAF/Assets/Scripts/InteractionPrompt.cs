@@ -42,6 +42,8 @@ public class InteractionPrompt : MonoBehaviour
         initialPos = transform.position;
         initialText = text.text;
 
+        transform.localScale = Vector3.zero;
+
         mainCam = Camera.main;
     }
 

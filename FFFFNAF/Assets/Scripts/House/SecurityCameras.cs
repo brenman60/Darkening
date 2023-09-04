@@ -19,6 +19,9 @@ public class SecurityCameras : MonoBehaviour
 
     void Update()
     {
+        if (!GameManager.isNight)
+            return;
+
         // Loop through disabled cameras and make them not disabled and stuff
         if (camerasDisabled.Count > 0)
         {

@@ -9,6 +9,11 @@ public class Player : MonoBehaviour
 
     public float movementSpeed = 5.0f;
     public float mouseSensitivity = 2.0f;
+    public float gravity = -9.81f;
+    public float groundDistance = 0.4f;
+    public int groundMask;
+
+    [SerializeField] private Transform groundCheck;
 
     private CharacterController characterController;
     private Camera playerCamera;
@@ -17,6 +22,9 @@ public class Player : MonoBehaviour
     private float verticalRotation = 0.0f;
 
     private float stepSoundDebounce;
+
+    private Vector3 velocity;
+    bool isGrounded;
 
     private void Awake()
     {
@@ -35,12 +43,21 @@ public class Player : MonoBehaviour
     {
         CameraUpdate();
         Movement();
-        HeartbeatVolume();
+
+        if (GameManager.isNight)
+        {
+            HeartbeatVolume();
+        }
     }
 
     void Movement()
     {
         if (lockMovement) return;
+
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        if (isGrounded && velocity.y < 0)
+            velocity.y = 0f;
 
         stepSoundDebounce -= Time.deltaTime;
 
@@ -49,6 +66,10 @@ public class Player : MonoBehaviour
 
         Vector3 movement = transform.right * moveX + transform.forward * moveZ;
         characterController.Move(movement * movementSpeed * Time.deltaTime);
+
+        velocity.y += gravity * Time.deltaTime;
+
+        characterController.Move(velocity * Time.deltaTime);
 
         if (Mathf.Abs(moveX) > .25f || Mathf.Abs(moveZ) > .25f && stepSoundDebounce < 0)
         {
@@ -75,8 +96,9 @@ public class Player : MonoBehaviour
     {
         if (lockMovement || Time.timeScale == 0) return;
 
-        if (!CameraSystemUI.Instance.On)
-            Cursor.lockState = CursorLockMode.Locked;
+        if (CameraSystemUI.Instance)
+            if (!CameraSystemUI.Instance.On)
+                Cursor.lockState = CursorLockMode.Locked;
 
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
