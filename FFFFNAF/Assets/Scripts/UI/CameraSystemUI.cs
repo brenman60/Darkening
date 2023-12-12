@@ -133,6 +133,7 @@ public class CameraSystemUI : MonoBehaviour
         {
             bool isCam = cam == selectedCamera;
             cam.gameObject.SetActive(isCam);
+            cam.enabled = true;
 
             if (isCam)
                 currentCam = cam;
@@ -216,7 +217,11 @@ public class CameraSystemUI : MonoBehaviour
         if (on)
             PulseCamera();
         else
+        {
             repairingCam = false;
+            currentCam.enabled = false;
+            currentCam = null;
+        }
     }
 
     public void InstantShutdown()

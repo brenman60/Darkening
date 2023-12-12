@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        dialogueCG = dialogueText.GetComponent<CanvasGroup>();
+        dialogueAudio = dialogueText.GetComponent<AudioSource>();
+
         if (SceneManager.GetActiveScene().name != "Night")
             isNight = false;
 

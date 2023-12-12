@@ -69,7 +69,7 @@ public class EndingScreen : MonoBehaviour
             yield return new WaitForSeconds(1f);
 
             if (GameManager.Night.nightNumber + 1 != 6)
-                TransitionUI.Instance.OpenScene("Game");
+                TransitionUI.Instance.OpenScene("Night");
             else
                 TransitionUI.Instance.OpenScene("MainMenu");
         }

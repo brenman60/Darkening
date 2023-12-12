@@ -51,6 +51,8 @@ public class CameraSystem : MonoBehaviour
             cameraSystem.padding = new Vector4(cameraSystem.padding.x, 550, cameraSystem.padding.z, 550);
 
             // Open camera system UI
+            mainCam.enabled = false;
+
             cameraSystemCG.interactable = true;
             cameraSystemCG.blocksRaycasts = true;
             while (cameraSystemCG.alpha < 1)
@@ -66,6 +68,7 @@ public class CameraSystem : MonoBehaviour
             CameraSystemUI.Instance.ToggleCameras();
 
             // Put back things that can be changed instantly
+            mainCam.enabled = true;
             Player.Instance.ResetTransform(true);
             Cursor.lockState = CursorLockMode.Locked;
             Flashlight.Instance.lockedOff = false;

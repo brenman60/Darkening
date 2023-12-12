@@ -198,12 +198,12 @@ public class BeastController : MonoBehaviour
             case "Door":
                 if (!Door.Instance.Open)
                 {
-                    if (Random.Range(1, 20) > 4)
+                    if (Random.Range(1, 20) > 2)
                         DeathScreen.Instance.KillPlayer("Door");
                 }
                 else if (Door.Instance.Open && Door.Instance.Open_)
                 {
-                    if (Random.Range(1, 20) > 4)
+                    if (Random.Range(1, 20) > 2)
                         DeathScreen.Instance.KillPlayer("Door");
                 }
                 return;
