@@ -221,6 +221,9 @@ public class CameraSystemUI : MonoBehaviour
             repairingCam = false;
             currentCam.enabled = false;
             currentCam = null;
+
+            foreach (Camera cam in cameras)
+                cam.gameObject.SetActive(false);
         }
     }
 

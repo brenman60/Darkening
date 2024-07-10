@@ -31,7 +31,7 @@ public class CameraSystem : MonoBehaviour
         {
             Player.Instance.LockPlayer();
             Player.Instance.SetCameraTransform(playerPosition.position, playerPosition.rotation.eulerAngles);
-            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.lockState = CursorLockMode.None;
             playerStartFOV = mainCam.fieldOfView;
 
             Flashlight.Instance.lockedOff = true;
