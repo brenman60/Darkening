@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2573b5190e242d74f866d3d710351e08
+guid: 24e3efc3ae9fc95459fc3dd66a938f87
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Digital dream Skew
+  - Pierce
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

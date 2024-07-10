@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: bb2b28c83d211e54d9598d283f8e1db4
+guid: 1b1d2495a5b2efe428a55cbd0a209dc7
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,8 +9,9 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Digital dream Narrow
-  fallbackFontReferences: []
+  - Pierce
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 24e3efc3ae9fc95459fc3dd66a938f87, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

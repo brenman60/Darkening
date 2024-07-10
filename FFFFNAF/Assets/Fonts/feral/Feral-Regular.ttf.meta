@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a77430e31aed39c4c858307615476ee5
+guid: fc037e4a1f230f84d8562c8e9df6e444
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Digital dream Skew Narrow
+  - Feral
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
