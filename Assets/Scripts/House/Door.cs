@@ -31,6 +31,7 @@ public class Door : MonoBehaviour
     private bool _open = false;
 
     private float holdingDebounce;
+    private bool closing;
 
     private Camera mainCam;
 
@@ -43,6 +44,47 @@ public class Door : MonoBehaviour
     {
         startOpenSpeed = openSpeed;
         mainCam = Camera.main;
+
+        Keybinds.Instance.hold.performed += HoldPressed;
+        Keybinds.Instance.interact.performed += Interacted;
+    }
+
+    private void Interacted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (!open) return;
+
+        closing = true;
+    }
+
+    private void HoldPressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (holdingDebounce > 0 || !_open) return;
+
+        doorClosedTimer = 0f;
+
+        SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
+
+        holdingDebounce = 1.5f;
+        open = !open;
+
+        if (!open)
+        {
+            openSpeed = startOpenSpeed;
+            Flashlight.Instance.lockedOff = true;
+        }
+        else
+        {
+            if ((BeastController.Instance.CurrentRoom == "Door" || BeastController.Instance.CurrentRoom == "Hallway") && doorClosedTimer < 3.5f)
+                DeathScreen.Instance.KillPlayer("Door");
+            else if (doorClosedTimer >= 3.5f)
+                BeastController.Instance.ForceIntoRoom("Kitchen");
+
+            if (holdingDebounce <= 0)
+                SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
+
+            openSpeed = startOpenSpeed * 2.5f;
+            Flashlight.Instance.lockedOff = false;
+        }
     }
 
     private void Update()
@@ -51,7 +93,7 @@ public class Door : MonoBehaviour
         HoldDoor();
     }
 
-    void ToggleDoor()
+    private void ToggleDoor()
     {
         float newYRot = open ? -51.21f : 0f;
         Vector3 newEulerRot = new Vector3(hinge.rotation.eulerAngles.x, newYRot, hinge.rotation.eulerAngles.z);
@@ -60,44 +102,13 @@ public class Door : MonoBehaviour
     }
 
     private float doorClosedTimer = 0;
-    void HoldDoor()
+    private void HoldDoor()
     {
-        if (!Input.GetKey(KeyCode.Space))
+        float hold = Keybinds.Instance.hold.ReadValue<float>();
+        if (hold == 0)
             holdingDebounce -= Time.deltaTime;
-        else if (Input.GetKey(KeyCode.Space))
+        else
             doorClosedTimer += Time.deltaTime;
-
-        if (!_open)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.Space) && holdingDebounce <= 0)
-        {
-            doorClosedTimer = 0f;
-
-            SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
-
-            holdingDebounce = 1.5f;
-            open = !open;
-
-            if (!open) 
-            {
-                openSpeed = startOpenSpeed;
-                Flashlight.Instance.lockedOff = true;
-            }
-            else
-            {
-                if ((BeastController.Instance.CurrentRoom == "Door" || BeastController.Instance.CurrentRoom == "Hallway") && doorClosedTimer < 3.5f)
-                    DeathScreen.Instance.KillPlayer("Door");
-                else if (doorClosedTimer >= 3.5f)
-                    BeastController.Instance.ForceIntoRoom("Kitchen");
-
-                if (holdingDebounce <= 0)
-                    SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
-
-                openSpeed = startOpenSpeed * 2.5f;
-                Flashlight.Instance.lockedOff = false;
-            }
-        }
     }
 
     public void StartListening()
@@ -109,7 +120,7 @@ public class Door : MonoBehaviour
             Player.Instance.LockPlayer();
             Player.Instance.SetCameraTransform(playerPosition.position, playerPosition.rotation.eulerAngles);
 
-            SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
+            SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
 
             openSpeed = startOpenSpeed;
             open = true;
@@ -118,7 +129,8 @@ public class Door : MonoBehaviour
             Flashlight.Instance.lockedOff = false;
 
             yield return new WaitForSeconds(.1f);
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
+            yield return new WaitUntil(() => closing);
+            closing = false;
 
             Player.Instance.ResetTransform(true);
 
@@ -131,12 +143,18 @@ public class Door : MonoBehaviour
             AmbientLight.Instance.On = true;
 
             if (wasOpen)
-                SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
+                SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
 
             yield return new WaitForSeconds(.3f);
 
             if (wasOpen)
-                SoundEvent.PlaySound(SoundEvent.Sound.DoorClosing, transform.position, false, null, 2f);
+                SoundManager.Instance.PlayAudio("DoorClosing", true, 1f, transform);
         }
+    }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.hold.performed -= HoldPressed;
+        Keybinds.Instance.interact.performed -= Interacted;
     }
 }

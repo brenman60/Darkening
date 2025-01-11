@@ -17,10 +17,21 @@ public class CameraSystem : MonoBehaviour
     private Camera mainCam;
     private VolumeProfile mainCamProfile;
 
+    private bool leavingCams;
+
     private void Start()
     {
         mainCam = Camera.main;
         mainCamProfile = globalVolume.profile;
+
+        Keybinds.Instance.interact.performed += Interacted;
+    }
+
+    private void Interacted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (mainCam.enabled) return;
+
+        leavingCams = true;
     }
 
     private float playerStartFOV = 0;
@@ -63,7 +74,8 @@ public class CameraSystem : MonoBehaviour
 
             CameraSystemUI.Instance.ToggleCameras();
 
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
+            yield return new WaitUntil(() => leavingCams);
+            leavingCams = false;
 
             CameraSystemUI.Instance.ToggleCameras();
 

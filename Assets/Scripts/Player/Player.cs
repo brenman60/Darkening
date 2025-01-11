@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         characterController = GetComponent<CharacterController>();
@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
         viewBobbing = GetComponentInChildren<ViewBobbing>();
         heartbeat = GetComponent<AudioSource>();
     }
-    void Update()
+    private void Update()
     {
         CameraUpdate();
         Movement();
@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void Movement()
+    private void Movement()
     {
         if (lockMovement) return;
 
@@ -61,27 +61,26 @@ public class Player : MonoBehaviour
 
         stepSoundDebounce -= Time.deltaTime;
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        Vector2 move = Keybinds.Instance.movement.ReadValue<Vector2>();
 
-        Vector3 movement = transform.right * moveX + transform.forward * moveZ;
+        Vector3 movement = transform.right * move.x + transform.forward * move.y;
         characterController.Move(movement * movementSpeed * Time.deltaTime);
 
         velocity.y += gravity * Time.deltaTime;
 
         characterController.Move(velocity * Time.deltaTime);
 
-        if (Mathf.Abs(moveX) > .25f || Mathf.Abs(moveZ) > .25f && stepSoundDebounce < 0)
+        if (Mathf.Abs(move.x) > .25f || Mathf.Abs(move.y) > .25f && stepSoundDebounce < 0)
         {
             if (stepSoundDebounce > 0)
                 return;
 
             stepSoundDebounce = .6f;
-            SoundEvent.PlaySound(SoundEvent.Sound.CarpetStep, transform.position, false, null, 4f);
+            SoundManager.Instance.PlayAudio("CarpetStep", true, 1f, transform);
         }
     }
 
-    void HeartbeatVolume()
+    private void HeartbeatVolume()
     {
         float normalizedProgress = GameManager.Instance.gameTime / ((GameManager.Night.nightLength / 60) * 30.0f);
 
@@ -92,7 +91,7 @@ public class Player : MonoBehaviour
         heartbeat.volume = Mathf.Lerp(heartbeat.volume, currentHour / 6f, Time.deltaTime * 5f);
     }
 
-    void CameraUpdate()
+    private void CameraUpdate()
     {
         if (lockMovement || Time.timeScale == 0) return;
 
@@ -100,11 +99,10 @@ public class Player : MonoBehaviour
             if (!CameraSystemUI.Instance.On)
                 Cursor.lockState = CursorLockMode.Locked;
 
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+        Vector2 mousePos = Keybinds.Instance.mousePosition.ReadValue<Vector2>();
 
-        transform.Rotate(Vector3.up * mouseX * mouseSensitivity);
-        verticalRotation -= mouseY * mouseSensitivity;
+        transform.Rotate(Vector3.up * mousePos.x * mouseSensitivity);
+        verticalRotation -= mousePos.y * mouseSensitivity;
         verticalRotation = Mathf.Clamp(verticalRotation, -90.0f, 90.0f);
         playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
     }

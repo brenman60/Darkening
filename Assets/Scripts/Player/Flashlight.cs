@@ -16,32 +16,41 @@ public class Flashlight : MonoBehaviour
         Instance = this;
     }
 
-    void Update()
+    private void Start()
+    {
+        Keybinds.Instance.flashlight.performed += FlashlightClicked;
+    }
+
+    private void FlashlightClicked(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (lockedOff) return;
+
+        on = !on;
+
+        if (BeastController.Instance.CurrentRoom == "Door" && on && Door.Instance.Open)
+            DeathScreen.Instance.KillPlayer("Door");
+
+        SoundManager.Instance.PlayAudio("FlashlightClick", true, 1f, transform);
+    }
+
+    private void Update()
     {
         if (Time.timeScale == 0) return;
 
-        ToggleLight();
+        if (lockedOff)
+            on = false;
+
         ChangeBrightness();
     }
 
-    void ToggleLight()
-    {
-        if (Input.GetMouseButtonDown(0) && !lockedOff)
-        {
-            on = !on;
-
-            if (BeastController.Instance.CurrentRoom == "Door" && on && Door.Instance.Open)
-                DeathScreen.Instance.KillPlayer("Door");
-
-            SoundEvent.PlaySound(SoundEvent.Sound.FlashlightClick, transform.position, false, transform, 2.5f);
-        }
-        else if (lockedOff)
-            on = false;
-    }
-
-    void ChangeBrightness()
+    private void ChangeBrightness()
     {
         float newIntensity = on ? 8.5f : 0.0f;
         light_.intensity = Mathf.Lerp(light_.intensity, newIntensity, Time.deltaTime * lightSpeed);
+    }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.flashlight.performed -= FlashlightClicked;
     }
 }

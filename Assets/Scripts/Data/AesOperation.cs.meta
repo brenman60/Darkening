@@ -1,10 +1,9 @@
 fileFormatVersion: 2
-guid: 4f22d72512deab14dada98a98fa6bff8
+guid: 5bd9b6e693b15a046bcad9893cb1b366
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - player_Footstep: {fileID: 8300000, guid: ea129555b050bfd49a7ccb2883c17f02, type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

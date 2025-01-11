@@ -35,6 +35,7 @@ public class Closet : MonoBehaviour
 
     private float holdingDebounce;
     private float openTime;
+    private bool closing;
 
     private Camera mainCam;
 
@@ -47,6 +48,40 @@ public class Closet : MonoBehaviour
     {
         startOpenSpeed = openSpeed;
         mainCam = Camera.main;
+
+        Keybinds.Instance.hold.performed += HoldPressed;
+        Keybinds.Instance.interact.performed += Interacted;
+    }
+
+    private void Interacted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (!open) return;
+
+        closing = true;
+    }
+
+    private void HoldPressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (holdingDebounce > 0) return;
+
+        open = !open;
+
+        if (!open)
+        {
+            doorSlam.Play();
+            holdingDebounce = 1f;
+            openSpeed = startOpenSpeed * 2.5f;
+            Flashlight.Instance.lockedOff = true;
+        }
+        else
+        {
+            if (holdingDebounce <= 0)
+                SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
+
+            holdingDebounce = 1f;
+            openSpeed = startOpenSpeed;
+            Flashlight.Instance.lockedOff = false;
+        }
     }
 
     private void Update()
@@ -55,40 +90,18 @@ public class Closet : MonoBehaviour
         ToggleDoors();
     }
 
-    void CheckInputs()
+    private void CheckInputs()
     {
-        if (!Input.GetKey(KeyCode.Space))
+        if (Keybinds.Instance.hold.ReadValue<float>() == 0)
             holdingDebounce -= Time.deltaTime;
 
         if (!_open)
             return;
         else if (open)
             openTime += Time.deltaTime;
-
-        if (Input.GetKeyDown(KeyCode.Space) && holdingDebounce <= 0)
-        {
-            open = !open;
-
-            if (!open)
-            {
-                doorSlam.Play();
-                holdingDebounce = 1f;
-                openSpeed = startOpenSpeed * 2.5f;
-                Flashlight.Instance.lockedOff = true;
-            }
-            else
-            {
-                if (holdingDebounce <= 0)
-                    SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
-
-                holdingDebounce = 1f;
-                openSpeed = startOpenSpeed;
-                Flashlight.Instance.lockedOff = false;
-            }
-        }
     }
 
-    void ToggleDoors()
+    private void ToggleDoors()
     {
         float newYRot1 = open ? -90f : 0f;
         Vector3 newEulerRot1 = new Vector3(doorHinge1.rotation.eulerAngles.x, newYRot1, doorHinge1.rotation.eulerAngles.z);
@@ -110,7 +123,7 @@ public class Closet : MonoBehaviour
             Player.Instance.LockPlayer();
             Player.Instance.SetCameraTransform(playerPosition.position, playerPosition.rotation.eulerAngles);
 
-            SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
+            SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
 
             openSpeed = startOpenSpeed;
 
@@ -120,7 +133,8 @@ public class Closet : MonoBehaviour
             Flashlight.Instance.lockedOff = false;
 
             yield return new WaitForSeconds(.1f);
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
+            yield return new WaitUntil(() => closing);
+            closing = false;
 
             Player.Instance.ResetTransform(true);
 
@@ -133,12 +147,18 @@ public class Closet : MonoBehaviour
             AmbientLight.Instance.On = true;
 
             if (wasOpen)
-                SoundEvent.PlaySound(SoundEvent.Sound.DoorOpening, transform.position, false, null, .5f);
+                SoundManager.Instance.PlayAudio("DoorOpening", true, 1f, transform);
 
             yield return new WaitForSeconds(.3f);
 
             if (wasOpen)
-                SoundEvent.PlaySound(SoundEvent.Sound.DoorClosing, transform.position, false, null, 2f);
+                SoundManager.Instance.PlayAudio("DoorClosing", true, 1f, transform);
         }
+    }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.hold.performed -= HoldPressed;
+        Keybinds.Instance.interact.performed -= Interacted;
     }
 }

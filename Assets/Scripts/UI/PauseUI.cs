@@ -13,30 +13,33 @@ public class PauseUI : MonoBehaviour
     private void Start()
     {
         cg = GetComponent<CanvasGroup>();
+
+        Keybinds.Instance.pause.performed += Paused;
+    }
+
+    private void Paused(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (openDebounce > 0) return;
+
+        open = !open;
+        openDebounce = 2.5f;
+
+        if (open)
+        {
+            Time.timeScale = 0f;
+            previousLockMode = Cursor.lockState;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            Cursor.lockState = previousLockMode;
+        }
     }
 
     private void Update()
     {
         openDebounce -= Time.unscaledDeltaTime;
-
-        if (Input.GetKeyDown(KeyCode.Escape) && openDebounce <= 0)
-        {
-            open = !open;
-            openDebounce = 2.5f;
-
-            if (open)
-            {
-                Time.timeScale = 0f;
-                previousLockMode = Cursor.lockState;
-                Cursor.lockState = CursorLockMode.None;
-            }
-            else
-            {
-                Time.timeScale = 1f;
-                Cursor.lockState = previousLockMode;
-            }
-        }
-
         SetVisibility();
     }
 
@@ -63,5 +66,10 @@ public class PauseUI : MonoBehaviour
     public void Quit()
     {
         Application.Quit();
+    }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.pause.performed -= Paused;
     }
 }

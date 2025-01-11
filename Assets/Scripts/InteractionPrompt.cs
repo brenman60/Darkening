@@ -8,15 +8,13 @@ public class InteractionPrompt : MonoBehaviour
 {
     public string alternateText = string.Empty;
 
-    public string keyRequired = "E";
-
     public float cooldownTime = 5f;
     public float visibilityRange = 5f;
     public float openSpeed = 15f;
     public float thresholdAngle = 30f;
 
     [Space(10)]
-    public SoundEvent.Sound sound = SoundEvent.Sound.None;
+    public Sound sound = null;
 
     [Space(25)]
     public TextMeshProUGUI text;
@@ -45,19 +43,45 @@ public class InteractionPrompt : MonoBehaviour
         transform.localScale = Vector3.zero;
 
         mainCam = Camera.main;
+
+        Keybinds.Instance.interact.performed += Interacted;
     }
 
-    void Update()
+    private void Interacted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (!isOpen || visibilityDebounce > 0) return;
+
+        visibilityDebounce = cooldownTime;
+
+        if (targetObject == null)
+            return;
+
+        Type thisType = Type.GetType(targetScript.ToString());
+        MethodInfo theMethod = thisType.GetMethod(targetMethod.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        object[] parameters = methodParameters.ToArray();
+        theMethod.Invoke(targetObject.GetComponent(thisType), parameters);
+
+        if (alternateText != string.Empty && !textAlternated)
+            text.text = alternateText;
+        else if (textAlternated)
+            text.text = initialText;
+
+        if (sound != null)
+            SoundManager.Instance.PlayAudio(sound.name, true, 1f, transform);
+
+        textAlternated = !textAlternated;
+    }
+
+    private void Update()
     {
         visibilityDebounce -= Time.deltaTime;
 
         SetRotation();
         SetPosition();
         SetVisibility();
-        CheckInput();
     }
 
-    void SetVisibility()
+    private void SetVisibility()
     {
         float distance = Vector3.Distance(Player.Instance.transform.position, transform.position);
         float angle = Vector3.Angle(mainCam.transform.forward, transform.position - mainCam.transform.position);
@@ -66,13 +90,13 @@ public class InteractionPrompt : MonoBehaviour
         isOpen = visible;
         transform.localScale = Vector3.Lerp(transform.localScale, newSize, Time.deltaTime * openSpeed);
     }
-    
-    void SetPosition()
+
+    private void SetPosition()
     {
         transform.position = initialPos;
     }
 
-    void SetRotation()
+    private void SetRotation()
     {
         transform.LookAt(Player.Instance.transform.position);
 
@@ -80,32 +104,8 @@ public class InteractionPrompt : MonoBehaviour
         transform.rotation = Quaternion.Euler(newRot);
     }
 
-    void CheckInput()
+    private void OnDestroy()
     {
-        if (isOpen && visibilityDebounce <= 0)
-        {
-            if (Input.GetKeyDown((KeyCode)Enum.Parse(typeof(KeyCode), keyRequired)))
-            {
-                visibilityDebounce = cooldownTime;
-
-                if (targetObject == null)
-                    return;
-
-                Type thisType = Type.GetType(targetScript.ToString());
-                MethodInfo theMethod = thisType.GetMethod(targetMethod.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                object[] parameters = methodParameters.ToArray();
-                theMethod.Invoke(targetObject.GetComponent(thisType), parameters);
-
-                if (alternateText != string.Empty && !textAlternated)
-                    text.text = alternateText;
-                else if (textAlternated)
-                    text.text = initialText;
-
-                if (sound != SoundEvent.Sound.None)
-                    SoundEvent.PlaySound(sound, transform.position, false, null, 1);
-
-                textAlternated = !textAlternated;
-            }
-        }
+        Keybinds.Instance.interact.performed -= Interacted;
     }
 }

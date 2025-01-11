@@ -22,11 +22,10 @@ public class ViewBobbing : MonoBehaviour
     {
         if (locked) return;
 
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
+        Vector2 movement = Keybinds.Instance.movement.ReadValue<Vector2>();
 
         // Check if the player is moving
-        if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f)
+        if (Mathf.Abs(movement.x) > 0.1f || Mathf.Abs(movement.y) > 0.1f)
         {
             // Calculate the sinusoidal motion for bobbing
             float waveSlice = Mathf.Sin(timer);
