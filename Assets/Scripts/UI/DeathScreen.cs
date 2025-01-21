@@ -21,20 +21,28 @@ public class DeathScreen : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
         cg = GetComponent<CanvasGroup>();
 
         mainCam = Camera.main;
+
+        Keybinds.Instance.jumpscare.performed += JumpscarePressed;
     }
 
-    void Update()
+    private void JumpscarePressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        if (Application.isEditor)
+            KillPlayer("Self");
+    }
+
+    private void Update()
     {
         SetVisibility();
         SetBlackScreenVisibility();
     }
 
-    void SetVisibility()
+    private void SetVisibility()
     {
         float newAlpha = open ? 1.0f : -1.0f;
         cg.alpha += newAlpha * Time.deltaTime * 2f;
@@ -42,7 +50,7 @@ public class DeathScreen : MonoBehaviour
         cg.blocksRaycasts = open;
     }
 
-    void SetBlackScreenVisibility()
+    private void SetBlackScreenVisibility()
     {
         float newAlpha = blackScreenOpen ? 1.0f : -1.0f;
         blackScreenCG.alpha += newAlpha * Time.deltaTime * 2f;
@@ -120,5 +128,10 @@ public class DeathScreen : MonoBehaviour
                 blackScreenOpen = true;
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.jumpscare.performed -= JumpscarePressed;
     }
 }

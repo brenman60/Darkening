@@ -62,6 +62,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""84b8f31b-3d67-4e88-ac0c-e423eae950f3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jumpscare"",
+                    ""type"": ""Button"",
+                    ""id"": ""30fe2280-c710-45c5-8cdd-cf371f9b49a6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -240,6 +258,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Flashlight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""76c5cc7e-6722-456e-9854-3848a1388514"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9afe39b9-0234-43d2-8d34-a74660d82473"",
+                    ""path"": ""<Keyboard>/period"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jumpscare"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -311,6 +351,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
         m_Gameplay_Hold = m_Gameplay.FindAction("Hold", throwIfNotFound: true);
         m_Gameplay_Flashlight = m_Gameplay.FindAction("Flashlight", throwIfNotFound: true);
+        m_Gameplay_Sprint = m_Gameplay.FindAction("Sprint", throwIfNotFound: true);
+        m_Gameplay_Jumpscare = m_Gameplay.FindAction("Jumpscare", throwIfNotFound: true);
         // Misc
         m_Misc = asset.FindActionMap("Misc", throwIfNotFound: true);
         m_Misc_Pause = m_Misc.FindAction("Pause", throwIfNotFound: true);
@@ -386,6 +428,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Interact;
     private readonly InputAction m_Gameplay_Hold;
     private readonly InputAction m_Gameplay_Flashlight;
+    private readonly InputAction m_Gameplay_Sprint;
+    private readonly InputAction m_Gameplay_Jumpscare;
     public struct GameplayActions
     {
         private @PlayerInput m_Wrapper;
@@ -394,6 +438,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
         public InputAction @Hold => m_Wrapper.m_Gameplay_Hold;
         public InputAction @Flashlight => m_Wrapper.m_Gameplay_Flashlight;
+        public InputAction @Sprint => m_Wrapper.m_Gameplay_Sprint;
+        public InputAction @Jumpscare => m_Wrapper.m_Gameplay_Jumpscare;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -415,6 +461,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Flashlight.started += instance.OnFlashlight;
             @Flashlight.performed += instance.OnFlashlight;
             @Flashlight.canceled += instance.OnFlashlight;
+            @Sprint.started += instance.OnSprint;
+            @Sprint.performed += instance.OnSprint;
+            @Sprint.canceled += instance.OnSprint;
+            @Jumpscare.started += instance.OnJumpscare;
+            @Jumpscare.performed += instance.OnJumpscare;
+            @Jumpscare.canceled += instance.OnJumpscare;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -431,6 +483,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Flashlight.started -= instance.OnFlashlight;
             @Flashlight.performed -= instance.OnFlashlight;
             @Flashlight.canceled -= instance.OnFlashlight;
+            @Sprint.started -= instance.OnSprint;
+            @Sprint.performed -= instance.OnSprint;
+            @Sprint.canceled -= instance.OnSprint;
+            @Jumpscare.started -= instance.OnJumpscare;
+            @Jumpscare.performed -= instance.OnJumpscare;
+            @Jumpscare.canceled -= instance.OnJumpscare;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -508,6 +566,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnInteract(InputAction.CallbackContext context);
         void OnHold(InputAction.CallbackContext context);
         void OnFlashlight(InputAction.CallbackContext context);
+        void OnSprint(InputAction.CallbackContext context);
+        void OnJumpscare(InputAction.CallbackContext context);
     }
     public interface IMiscActions
     {

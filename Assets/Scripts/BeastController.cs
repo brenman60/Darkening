@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BeastController : MonoBehaviour
 {
     public static BeastController Instance { get; private set; }
+
+    public delegate void BeastRoomChangedHandler(string roomName, GameObject beastPosition);
+    public static event BeastRoomChangedHandler BeastRoomChanged;
 
     [Header("Other GameObjects")]
     public CeilingFan ceilingFan;
@@ -58,7 +62,7 @@ public class BeastController : MonoBehaviour
         if (movementTick > ((1 * movementSpeed) / GameManager.beastSpeedMultiplier))
         {
             movementTick = 0f;
-            if (Random.Range(0, 20) <= aggression)
+            if (UnityEngine.Random.Range(0, 20) <= aggression)
                 Movement();
         }
     }
@@ -83,7 +87,7 @@ public class BeastController : MonoBehaviour
             {
                 closetTick = 0f;
 
-                if (Random.Range(0, 20) > 12)
+                if (UnityEngine.Random.Range(0, 20) > 12)
                     ClosetMovement(-1);
             }
         }
@@ -91,7 +95,7 @@ public class BeastController : MonoBehaviour
         if (closetTick > ((3 * movementSpeed) / GameManager.beastSpeedMultiplier))
         {
             closetTick = 0f;
-            if (Random.Range(0, 20) <= aggression)
+            if (UnityEngine.Random.Range(0, 20) <= aggression)
             {
                 if (currentClosetStage < 3)
                     ClosetMovement();
@@ -105,7 +109,7 @@ public class BeastController : MonoBehaviour
     {
         if (forceDirection == 0)
         {
-            int movementDirection = Random.Range(0, 5);
+            int movementDirection = UnityEngine.Random.Range(0, 5);
             if (movementDirection < 4)
             {
                 // Forward movement
@@ -124,7 +128,7 @@ public class BeastController : MonoBehaviour
 
         if (Closet.Instance.Open_)
             BlackScreen.Instance.FlashBlack(.1f);
-        else if (currentClosetStage == 3 && Random.Range(0, 2) == 1)
+        else if (currentClosetStage == 3 && UnityEngine.Random.Range(0, 2) == 1)
             Closet.Instance.doorKnocking.Play();
 
         foreach (GameObject closetPos in closetStages)
@@ -151,7 +155,7 @@ public class BeastController : MonoBehaviour
                     if (SecurityCameras.Instance.camerasDisabled.ContainsKey(cam) || SecurityCameras.Instance.camerasBroken.ContainsKey(cam))
                         continue;
 
-                    int rand = Random.Range(0, 20);
+                    int rand = UnityEngine.Random.Range(0, 20);
 
                     if (rand > 4)
                         SecurityCameras.Instance.DisableCamera(cam, 1.5f);
@@ -197,12 +201,12 @@ public class BeastController : MonoBehaviour
             case "Door":
                 if (!Door.Instance.Open)
                 {
-                    if (Random.Range(1, 20) > 2)
+                    if (UnityEngine.Random.Range(1, 20) > 2)
                         DeathScreen.Instance.KillPlayer("Door");
                 }
                 else if (Door.Instance.Open && Door.Instance.Open_)
                 {
-                    if (Random.Range(1, 20) > 2)
+                    if (UnityEngine.Random.Range(1, 20) > 2)
                         DeathScreen.Instance.KillPlayer("Door");
                 }
                 return;
@@ -240,7 +244,7 @@ public class BeastController : MonoBehaviour
 
         availableLocations.Add(currentRoom);
 
-        string newLocation = availableLocations[Random.Range(0, availableLocations.Count)];
+        string newLocation = availableLocations[UnityEngine.Random.Range(0, availableLocations.Count)];
         currentRoom = newLocation;
 
         switch (currentRoom)
@@ -262,8 +266,9 @@ public class BeastController : MonoBehaviour
             bool currentLocation = beastLocation.LocationName == currentRoom;
             if (currentLocation)
             {
-                GameObject randomLocation = beastLocation.possibleBeastLocations[Random.Range(0, beastLocation.possibleBeastLocations.Count)];
+                GameObject randomLocation = beastLocation.possibleBeastLocations[UnityEngine.Random.Range(0, beastLocation.possibleBeastLocations.Count)];
                 randomLocation.SetActive(true);
+                BeastRoomChanged.Invoke(newLocation, randomLocation);
             }
         }
     }
@@ -282,7 +287,7 @@ public class BeastController : MonoBehaviour
             }
             else
             {
-                GameObject randomLocation = beastLocation.possibleBeastLocations[Random.Range(0, beastLocation.possibleBeastLocations.Count)];
+                GameObject randomLocation = beastLocation.possibleBeastLocations[UnityEngine.Random.Range(0, beastLocation.possibleBeastLocations.Count)];
                 randomLocation.SetActive(true);
             }
         }

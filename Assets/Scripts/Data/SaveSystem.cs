@@ -36,9 +36,8 @@ public static class SaveSystem
     {
         if (!initialized) return;
 
-        string[] globalData = new string[2]
+        string[] globalData = new string[1]
         {
-            Keybinds.Instance.GetSaveData(),
             GameSettings.Instance.GetSaveData(),
         };
 
@@ -57,8 +56,7 @@ public static class SaveSystem
         }
 
         string[] dataPoints = JsonConvert.DeserializeObject<string[]>(await ReadFromFile(globalDataPath), serializerSettings);
-        if (dataPoints.Length >= 1) Keybinds.Instance.PutSaveData(dataPoints[0]);
-        if (dataPoints.Length >= 2) GameSettings.Instance.PutSaveData(dataPoints[1]);
+        if (dataPoints.Length >= 1) GameSettings.Instance.PutSaveData(dataPoints[0]);
 
         initialized = true;
     }

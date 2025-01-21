@@ -92,4 +92,9 @@ public class CameraSystem : MonoBehaviour
             cameraSystemCG.blocksRaycasts = false;
         }
     }
+
+    private void OnDestroy()
+    {
+        Keybinds.Instance.interact.performed -= Interacted;
+    }
 }

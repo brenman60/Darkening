@@ -3,20 +3,19 @@ using UnityEngine;
 
 public class CeilingFan : MonoBehaviour
 {
-    public Transform[] blades;
+    [SerializeField] private Transform[] blades;
     [Space(20)]
-    public Light ceilingLight;
+    [SerializeField] private Light ceilingLight;
     [Space(20)]
     public float flickerRate;
-    public float flickerSpeed = .25f;
-    public float fanSpeed = 5f;
+    [SerializeField] private float flickerSpeed = .25f;
+    [SerializeField] private float fanSpeed = 5f;
     private bool spinFan = true;
+    [SerializeField] private float ceilingLightIntensity;
 
     private AudioSource fanBuzzing;
 
     public float startFlickerRate;
-    private float ceilingLightIntensity;
-    private float flickerDebounce;
 
     private void Start()
     {
@@ -33,7 +32,7 @@ public class CeilingFan : MonoBehaviour
         ChangeBuzzingVolume();
     }
 
-    void SpinFan()
+    private void SpinFan()
     {
         if (!spinFan)
         {
@@ -54,16 +53,13 @@ public class CeilingFan : MonoBehaviour
         }
     }
 
-    void Flicker()
+    private void Flicker()
     {
-        flickerDebounce -= Time.deltaTime;
-
         if (flickerRate <= 0)
             return;
 
         if (Random.Range(0f, 200f) < flickerRate)
         {
-            flickerDebounce = flickerSpeed * 1.5f;
             StartCoroutine(Flicker_());
             IEnumerator Flicker_()
             {
@@ -74,9 +70,9 @@ public class CeilingFan : MonoBehaviour
         }
     }
 
-    void ChangeBuzzingVolume()
+    private void ChangeBuzzingVolume()
     {
-        float newVolume = spinFan ? 1f : 0f;
+        float newVolume = spinFan ? 0.25f : 0f;
         fanBuzzing.volume = Mathf.Lerp(fanBuzzing.volume, newVolume, Time.deltaTime * fanSpeed);
     }
 }

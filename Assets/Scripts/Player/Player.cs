@@ -62,8 +62,15 @@ public class Player : MonoBehaviour
         stepSoundDebounce -= Time.deltaTime;
 
         Vector2 move = Keybinds.Instance.movement.ReadValue<Vector2>();
+        bool sprinting = Keybinds.Instance.sprint.ReadValue<float>() != 0f;
 
         Vector3 movement = transform.right * move.x + transform.forward * move.y;
+        if (sprinting)
+        {
+            movement *= 2f;
+            stepSoundDebounce -= Time.deltaTime;
+        }
+
         characterController.Move(movement * movementSpeed * Time.deltaTime);
 
         velocity.y += gravity * Time.deltaTime;
@@ -76,7 +83,7 @@ public class Player : MonoBehaviour
                 return;
 
             stepSoundDebounce = .6f;
-            SoundManager.Instance.PlayAudio("CarpetStep", true, 1f, transform);
+            SoundManager.Instance.PlayAudio("CarpetStep", true, 0.15f, transform);
         }
     }
 

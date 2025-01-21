@@ -17,7 +17,7 @@ public class SecurityCameras : MonoBehaviour
             Instance = this;
     }
 
-    void Update()
+    private void Update()
     {
         if (!GameManager.isNight)
             return;
@@ -44,7 +44,7 @@ public class SecurityCameras : MonoBehaviour
         RandomCameraDisabling();
     }
 
-    void RandomCameraDisabling()
+    private void RandomCameraDisabling()
     {
         randomDisablingDebounce -= Time.deltaTime;
         if (randomDisablingDebounce <= 0)
