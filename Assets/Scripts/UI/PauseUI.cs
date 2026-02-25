@@ -14,7 +14,7 @@ public class PauseUI : MonoBehaviour
     {
         cg = GetComponent<CanvasGroup>();
 
-        Keybinds.Instance.pause.performed += Paused;
+        Keybinds.pause.performed += Paused;
     }
 
     private void Paused(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -22,7 +22,7 @@ public class PauseUI : MonoBehaviour
         if (openDebounce > 0) return;
 
         open = !open;
-        openDebounce = 2.5f;
+        openDebounce = 0.25f;
 
         if (open)
         {
@@ -70,6 +70,6 @@ public class PauseUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        Keybinds.Instance.pause.performed -= Paused;
+        Keybinds.pause.performed -= Paused;
     }
 }

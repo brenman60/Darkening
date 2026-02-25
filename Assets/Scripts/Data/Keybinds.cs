@@ -5,17 +5,19 @@ public class Keybinds : MonoBehaviour
 {
     public static Keybinds Instance { get; private set; }
 
-    public PlayerInput playerControls { get; private set; }
-    public InputAction movement { get; private set; }
-    public InputAction sprint { get; private set; }
-    public InputAction interact { get; private set; }
-    public InputAction hold { get; private set; }
-    public InputAction flashlight { get; private set; }
-    public InputAction pause { get; private set; }
-    public InputAction mousePosition { get; private set; }
-    public InputAction jumpscare { get; private set; }
+    public static PlayerInput playerControls { get; private set; }
+    public static InputAction movement { get; private set; }
+    public static InputAction sprint { get; private set; }
+    public static InputAction interact { get; private set; }
+    public static InputAction hold { get; private set; }
+    public static InputAction flashlight { get; private set; }
+    public static InputAction pause { get; private set; }
+    public static InputAction mousePosition { get; private set; }
+    public static InputAction jumpscare { get; private set; }
+    public static InputAction crouch { get; private set; }
+    public static InputAction scroll { get; private set; }
 
-    private static bool saveLoaded = false;
+    //private static bool saveLoaded = false;
 
     private float saveTimer;
 
@@ -73,6 +75,12 @@ public class Keybinds : MonoBehaviour
 
         jumpscare = playerControls.Gameplay.Jumpscare;
         jumpscare.Enable();
+
+        crouch = playerControls.Gameplay.Crouch;
+        crouch.Enable();
+
+        scroll = playerControls.UI.ScrollWheel;
+        scroll.Enable();
     }
 
     private void OnDisable()
@@ -85,5 +93,7 @@ public class Keybinds : MonoBehaviour
         pause?.Disable();
         mousePosition?.Disable();
         jumpscare?.Disable();
+        crouch?.Disable();
+        scroll?.Disable();
     }
 }

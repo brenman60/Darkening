@@ -38,7 +38,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void Play()
     {
-        GameManager.Night = nights.GetNight(1);
+        GameManager.SetNight(nights.GetNight(1));
         PlayerPrefs.SetInt("night", 1);
 
         TransitionUI.Instance.OpenScene("Night");
@@ -46,7 +46,7 @@ public class MainMenuUI : MonoBehaviour
     
     public void Continue()
     {
-        GameManager.Night = nights.GetNight(PlayerPrefs.GetInt("night"));
+        GameManager.SetNight(nights.GetNight(PlayerPrefs.GetInt("night")));
 
         TransitionUI.Instance.OpenScene("Night");
     }

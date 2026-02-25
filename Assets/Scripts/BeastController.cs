@@ -45,11 +45,11 @@ public class BeastController : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.gameTime >= GameManager.Night.beastStartTime)
-        {
-            MovementTick();
-            ClosetTick();
-        }
+        //if (GameManager.Instance.nightTime >= GameManager.Night.beastStartTime)
+        //{
+        //    MovementTick();
+        //    ClosetTick();
+        //}
 
         if (lastMovementSpeed == -100)
             lastMovementSpeed = movementSpeed;
@@ -59,7 +59,7 @@ public class BeastController : MonoBehaviour
     {
         movementTick += Time.deltaTime;
 
-        if (movementTick > ((1 * movementSpeed) / GameManager.beastSpeedMultiplier))
+        if (movementTick > ((1 * movementSpeed) /*/ GameManager.beastSpeedMultiplier*/))
         {
             movementTick = 0f;
             if (UnityEngine.Random.Range(0, 20) <= aggression)
@@ -92,7 +92,7 @@ public class BeastController : MonoBehaviour
             }
         }
 
-        if (closetTick > ((3 * movementSpeed) / GameManager.beastSpeedMultiplier))
+        if (closetTick > ((3 * movementSpeed) /*/ GameManager.beastSpeedMultiplier*/))
         {
             closetTick = 0f;
             if (UnityEngine.Random.Range(0, 20) <= aggression)
@@ -126,10 +126,10 @@ public class BeastController : MonoBehaviour
 
         currentClosetStage = Mathf.Clamp(currentClosetStage, 1, 3);
 
-        if (Closet.Instance.Open_)
-            BlackScreen.Instance.FlashBlack(.1f);
-        else if (currentClosetStage == 3 && UnityEngine.Random.Range(0, 2) == 1)
-            Closet.Instance.doorKnocking.Play();
+        //if (Closet.Instance.Open_)
+        //    BlackScreen.Instance.FlashBlack(.1f);
+        //else if (currentClosetStage == 3 && UnityEngine.Random.Range(0, 2) == 1)
+        //    Closet.Instance.doorKnocking.Play();
 
         foreach (GameObject closetPos in closetStages)
             closetPos.SetActive(false);
@@ -217,15 +217,7 @@ public class BeastController : MonoBehaviour
                     "Porch",
                     "HallwayStairs",
                 };
-
-                if (Window.Instance.Open)
-                    for (int i = 0; i < 3; i++)
-                        availableLocations.Add("Window");
-
                 break;
-            case "Window":
-
-                return;
             case "ComputerRoom":
                 availableLocations = new List<string>()
                 {
@@ -294,7 +286,7 @@ public class BeastController : MonoBehaviour
     }
 }
 
-[System.Serializable]
+[Serializable]
 public struct BeastLocation
 {
     public string LocationName;

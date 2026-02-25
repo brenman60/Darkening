@@ -27,7 +27,7 @@ public class DeathScreen : MonoBehaviour
 
         mainCam = Camera.main;
 
-        Keybinds.Instance.jumpscare.performed += JumpscarePressed;
+        Keybinds.jumpscare.performed += JumpscarePressed;
     }
 
     private void JumpscarePressed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -82,7 +82,7 @@ public class DeathScreen : MonoBehaviour
                 jumpscareObject.gameObject.SetActive(true);
                 jumpscareAudio.Play();
 
-                Player.Instance.LockPlayer();
+                //Player.Instance.LockPlayer();
                 Flashlight.Instance.lockedOff = true;
 
                 yield return new WaitForSeconds(1.25f);
@@ -117,7 +117,7 @@ public class DeathScreen : MonoBehaviour
             {
                 open = true;
 
-                Player.Instance.LockPlayer();
+                //Player.Instance.LockPlayer();
                 Flashlight.Instance.lockedOff = true;
 
                 if (CameraSystemUI.Instance.On)
@@ -132,6 +132,6 @@ public class DeathScreen : MonoBehaviour
 
     private void OnDestroy()
     {
-        Keybinds.Instance.jumpscare.performed -= JumpscarePressed;
+        Keybinds.jumpscare.performed -= JumpscarePressed;
     }
 }

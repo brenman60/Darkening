@@ -31,7 +31,7 @@ public class EndingScreen : MonoBehaviour
             cg.interactable = true;
             cg.blocksRaycasts = true;
 
-            Player.Instance.LockPlayer();
+            //Player.Instance.LockPlayer();
             Flashlight.Instance.lockedOff = true;
 
             if (CameraSystemUI.Instance.On)
@@ -63,7 +63,7 @@ public class EndingScreen : MonoBehaviour
 
             int nextNight = Mathf.Clamp(GameManager.Night.nightNumber + 1, 1, 5);
 
-            GameManager.Night = nights.GetNight(nextNight);
+            GameManager.SetNight(nights.GetNight(nextNight));
             PlayerPrefs.SetInt("night", nextNight);
 
             yield return new WaitForSeconds(1f);

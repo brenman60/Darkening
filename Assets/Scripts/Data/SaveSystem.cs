@@ -46,7 +46,7 @@ public static class SaveSystem
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    public static async Task LoadGlobal()
+    public static async System.Threading.Tasks.Task LoadGlobal()
     {
         if (initialized) return;
         if (!globalDataExists)

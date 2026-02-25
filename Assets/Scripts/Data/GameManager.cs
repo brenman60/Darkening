@@ -1,38 +1,32 @@
-using System.Collections;
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public static Night Night { get; private set; }
+    public static NightSection NightSection { get; private set; }
+    public static event Action NightSectionChanged;
+    public static event Action EnemyTick;
 
-    public static bool isNight = true;
+    private const float baseEnemyTimeInterval = 1;
 
-    public static Night Night;
+    [Header("References")]
+    [SerializeField] private Nights nights;
+    [SerializeField] private GameObject mainUI;
+    [SerializeField] private TextMeshProUGUI nightStartText;
+    [SerializeField] private Animator nightStartAnimator;
+    [SerializeField] private Transform enemyHolder;
 
-    public static float heat = 60;
-    public static float beastSpeedMultiplier = 1;
+    public float nightTime { get; private set; }
+    public float sectionTime { get; private set; }
 
-    public Nights nights;
+    private List<Task> nightTasks = new List<Task>();
+    private List<Task> sectionTasks = new List<Task>();
 
-    [Space(25)]
-
-    public GameObject mainUI;
-    public TextMeshProUGUI dialogueText;
-    public TextMeshProUGUI heatText;
-
-    [Space(25)]
-    [Header("Night Start Animation")]
-    public TextMeshProUGUI nightStartText;
-    public Animator nightStartAnimator;
-
-    // Private Components
-    private CanvasGroup dialogueCG;
-    private AudioSource dialogueAudio;
-
-    public float gameTime { get; private set; }
-    public bool gameWon { get; private set; }
+    private float enemyTimer;
 
     private void Awake()
     {
@@ -41,17 +35,68 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        dialogueCG = dialogueText.GetComponent<CanvasGroup>();
-        dialogueAudio = dialogueText.GetComponent<AudioSource>();
-
-        if (SceneManager.GetActiveScene().name != "Night")
-            isNight = false;
-
-        if (isNight)
-            StartNight();
+        StartNight();
     }
 
-    void StartNight()
+    private void Update()
+    {
+        nightTime += Time.deltaTime;
+        sectionTime += Time.deltaTime;
+
+        if (sectionTime >= Night.sectionLength && sectionTasks.Count == 0)
+        {
+            sectionTime = 0;
+
+            switch (NightSection)
+            {
+                case NightSection.Survival:
+                    NightSection = NightSection.Darkening;
+                    break;
+                case NightSection.Darkening:
+                    NightSection = NightSection.Survival;
+                    break;
+            }
+
+            // Remove previous enemies
+            foreach (Transform previousEnemy in enemyHolder)
+                Destroy(previousEnemy.gameObject);
+
+            // Change enemies
+            foreach (EnemyProperties possibleEnemy in Night.availableEnemies)
+            {
+                if (possibleEnemy.nightSection != NightSection) continue;
+
+                GameObject enemyObj = Instantiate(possibleEnemy.enemyPrefab, enemyHolder);
+                Enemy enemy = enemyObj.GetComponent<Enemy>();
+                enemyObj.name = possibleEnemy.name;
+                enemy.Init(possibleEnemy);
+            }
+
+            NightSectionChanged?.Invoke();
+
+            print("It has now changed to " + NightSection);
+            // "Re-roll" the section tasks
+        }
+
+        if (nightTime >= Night.nightLength && nightTasks.Count == 0)
+        {
+            // Beat the night
+        }
+
+        enemyTimer += Time.deltaTime;
+        if (enemyTimer >= baseEnemyTimeInterval / Night.movementTickReduction)
+        {
+            enemyTimer = 0f;
+            EnemyTick?.Invoke();
+        }
+    }
+
+    public static void SetNight(Night night)
+    {
+        Night = night;
+    }
+
+    private void StartNight()
     {
         if (Night == null)
             Night = nights.GetNight(1);
@@ -60,87 +105,38 @@ public class GameManager : MonoBehaviour
         nightStartText.text = Night.nightStartText;
         nightStartAnimator.SetTrigger("NightStart");
 
-        // Reset static variables
-        heat = 60f;
-
-        // Set Beast properties
-        BeastController.Instance.movementSpeed = Night.beastSpeed;
-        BeastController.Instance.aggression = Night.beastAggression;
-        BeastController.Instance.closetBeast = Night.closetBeast;
-
-        StartCoroutine(PlayDialogue());
+        nightTasks = Night.availableTasks;
     }
 
-    private void Update()
+    public void CompleteTask(TaskType type, Task task)
     {
-        if (isNight)
+        switch (type)
         {
-            gameTime += Time.deltaTime;
-            if (gameTime >= Night.nightLength && !gameWon)
-            {
-                gameWon = true;
-                EndingScreen.Instance.WinNight();
-            }
-
-            HeatCheck();
+            case TaskType.Night:
+                if (nightTasks.Contains(task))
+                    nightTasks.Remove(task);
+                break;
+            case TaskType.Darkening:
+                if (sectionTasks.Contains(task))
+                    sectionTasks.Remove(task);
+                break;
         }
     }
+}
 
-    private float heatTextFlashDebounce;
-    void HeatCheck()
-    {
-        heatTextFlashDebounce -= Time.deltaTime;
+public enum NightSection 
+{
+    Survival,
+    Darkening,
+}
 
-        heat = Mathf.Clamp(heat, 50, 110);
+public enum Task
+{
 
-        if (heat > 100)
-            beastSpeedMultiplier = 2f;
-        else if (heat > 90)
-            beastSpeedMultiplier = 1.5f;
-        else if (heat > 70)
-            beastSpeedMultiplier = 1f;
-        else if (heat > 50)
-            beastSpeedMultiplier = .75f;
+}
 
-        if (heat == 110)
-            DeathScreen.Instance.OverheatPlayer();
-
-        // Flash heat text color
-        if (heat >= 95 && heatTextFlashDebounce <= 0)
-        {
-            bool white = heatText.color == Color.white ? true : false;
-            if (white)
-                heatText.color = Color.red;
-            else
-                heatText.color = Color.white;
-
-            heatTextFlashDebounce = .5f;
-        }
-        else
-            heatText.color = Color.white;
-    }
-
-    IEnumerator PlayDialogue()
-    {
-        dialogueCG.alpha = 1f;
-
-        yield return new WaitForSeconds(Night.nightDialogueStartTime);
-
-        foreach (DialogueMessage dialogue in Night.dialogues)
-        {
-            dialogueText.text = string.Empty;
-
-            for (int i = 0; i < dialogue.dialogueText.Length; i++)
-            {
-                dialogueText.text += dialogue.dialogueText[i];
-                dialogueAudio.Play();
-                yield return new WaitForSeconds(dialogue.letterWaitTime);
-            }
-
-            yield return new WaitForSeconds(dialogue.showTime);
-        }
-
-        dialogueCG.alpha = 0f;
-        dialogueText.text = string.Empty;
-    }
+public enum TaskType
+{
+    Night,
+    Darkening,
 }
